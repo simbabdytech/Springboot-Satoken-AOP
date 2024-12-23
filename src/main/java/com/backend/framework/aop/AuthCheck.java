@@ -1,7 +1,5 @@
 package com.backend.framework.aop;
 
-import lombok.Builder;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface AuthCheck {
     String[] role() default "";
 }
+
 

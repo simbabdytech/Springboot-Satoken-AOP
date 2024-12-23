@@ -5,35 +5,33 @@ import cn.dev33.satoken.secure.SaSecureUtil;
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.backend.framework.aop.AuthCheck;
-import com.backend.framework.dto.user.LoginParam;
-import com.backend.framework.dto.user.RegisterParam;
-import com.backend.framework.model.User;
-import com.backend.framework.service.IUserService;
+import com.backend.framework.dto.consumer.LoginParam;
+import com.backend.framework.dto.consumer.RegisterParam;
+import com.backend.framework.model.Customer;
+import com.backend.framework.service.ICustomerService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/consumer")
+public class CustomerController {
     @Autowired
-    IUserService userService;
+    ICustomerService userService;
 
     @GetMapping("/login")
     public SaTokenInfo login(LoginParam requests) {
-        User user = userService.getOne(new QueryWrapper<User>().
+        Customer consumer = userService.getOne(new QueryWrapper<Customer>().
                 eq("username", requests.getUsername()).
                 eq("password", SaSecureUtil.sha256(requests.getPassword())));
-        if (user != null) {
-            StpUtil.setLoginId(user.getId());
+        if (consumer != null) {
+            StpUtil.login(consumer.getId());
             return StpUtil.getTokenInfo();
         } else return null;
     }
@@ -51,24 +49,22 @@ public class UserController {
     public String isLogin(HttpServletRequest request) {
         // 此处仅作模拟示例，真实项目需要从数据库中查询数据进行比对
 //        StpUtil.logout();
-      return "";
+        return "";
 
     }
 
     @GetMapping("/register")
     public SaTokenInfo register(RegisterParam request) {
         if (request.getPassword().equals(request.getAgpassword())) {
-            User newUser = new User();
-            newUser.setUsername(request.getUsername());
-            newUser.setPassword(SaSecureUtil.sha256(request.getPassword()));
-            newUser.setRole(request.getRole());
+            Customer newConsumer = new Customer();
+            newConsumer.setUsername(request.getUsername());
+            newConsumer.setPassword(SaSecureUtil.sha256(request.getPassword()));
+            newConsumer.setRole(request.getRole());
             try {
-                userService.save(newUser);
-                StpUtil.setLoginId(newUser.getId());
+                userService.save(newConsumer);
+                StpUtil.login(newConsumer.getId());
                 return StpUtil.getTokenInfo();
-            }
-            catch (Exception exception)
-            {
+            } catch (Exception exception) {
                 return null;
             }
 
@@ -79,8 +75,9 @@ public class UserController {
 
 
     @GetMapping("/list")
-    public List<User> register(HttpServletRequest request) {
+    public List<Customer> register(HttpServletRequest request) {
         return userService.list();
     }
 
 }
+

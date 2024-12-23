@@ -1,4 +1,4 @@
-package com.backend.framework.dto.user;
+package com.backend.framework.dto.consumer;
 
 import lombok.Data;
 
@@ -9,3 +9,4 @@ public class RegisterParam {
     String agpassword;
     String role;
 }
+
